@@ -1,0 +1,15 @@
+How To run this project
+
+1. Create a virtual environment
+Command: python -m venv myenv
+
+2. Activate the virtual environment
+Command: myenv\Scripts\Activate
+
+3. Install the dependencies
+Command: pip install -r requirements.txt
+
+4. Run the project
+Command: python main.py
+            or
+        python -m src.inference.detect_camera
