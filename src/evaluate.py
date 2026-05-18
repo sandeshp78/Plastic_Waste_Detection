@@ -1,12 +1,13 @@
-import os
 from pathlib import Path
+
 from ultralytics import YOLO
+
 
 def main():
     # Project root (parent of src/)
     project_root = Path(__file__).resolve().parent.parent
     model_path = project_root / "models" / "best_model.pt"
-    data_yaml = project_root / "Dataset" / "final" / "data.yaml"
+    data_yaml = project_root / "Dataset" / "robot_clean" / "data.yaml"
     runs_dir = project_root / "runs"
 
     if not model_path.exists():
@@ -29,7 +30,7 @@ def main():
         split="val",
         project=str(runs_dir),
         name="plastic_eval",
-        exist_ok=True
+        exist_ok=True,
     )
 
     print("\n===========================================")
@@ -43,6 +44,7 @@ def main():
     print("===========================================")
 
     print(f"\n[INFO] A detailed evaluation breakdown has been saved in '{runs_dir / 'plastic_eval'}'.")
+
 
 if __name__ == "__main__":
     main()

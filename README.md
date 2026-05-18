@@ -1,84 +1,140 @@
-# Plastic Waste Detection System v1.0
+# Plastic Waste Detection Robot
 
-## Overview
-The Plastic Waste Detection System is an end-to-end computer vision project designed to detect plastic waste in water bodies using the YOLOv8 object detection model. It provides capabilities for both training a custom model and running real-time inferences on live camera feeds.
-
-The system is robust and automated: if a trained model is missing, it will automatically initiate the training phase using your dataset before preceding to live inference. 
+Real-time plastic waste detection using a YOLOv8 model, OpenCV camera input, and optional live location capture from the laptop browser or GPS environment variables.
 
 ## Features
-- **Automated Workflow**: Smart detection of existing models; automatically runs training if no model is found.
-- **YOLOv8 Powered**: Uses state-of-the-art YOLOv8 architecture for fast and precise object detection.
-- **Real-Time Inference**: Processes live video feeds from a webcam to identify plastic anomalies.
-- **Auto Data Prep**: Splits datasets into Training/Validation sets and generates YAML configurations automatically.
-- **Pseudo-GPS tracking**: Computes and logs coordinates based on bounding boxes on the screen frame. 
 
-## Project Architecture
-The system consists of three main components:
-1. `main.py`: The master script setting up the project environment and orchestrating the Train/Inference logic.
-2. `src/train_model.py`: Automates the processing of the dataset, training the YOLO model, and exporting `models/best_model.pt`.
-3. `src/inference/detect_camera.py`: Captures webcam feeds and performs real-time detection, filtering detections with a >50% confidence threshold.
+- Detects plastic waste from a live camera feed.
+- Uses `models/best_model.pt` as the production model.
+- Automatically trains a model when `models/best_model.pt` is missing.
+- Builds a clean YOLO dataset from the available raw datasets when needed.
+- Shows detected objects with bounding boxes in an OpenCV window.
+- Prints confirmed detections with latitude and longitude when location is available.
 
-## File Structure
+## Project Structure
+
+```text
+.
+|-- Dataset/                         # Source and prepared YOLO datasets
+|-- Dataset2/                        # Additional raw images, masks, and labels
+|-- models/
+|   `-- best_model.pt                # Production model used for inference
+|-- src/
+|   |-- build_clean_dataset.py       # Builds Dataset/robot_clean
+|   |-- evaluate.py                  # Evaluates models/best_model.pt
+|   |-- location_provider.py         # Reads manual, browser, or Windows location
+|   |-- phone_location_server.py     # Local browser location server
+|   |-- train_model.py               # Trains and exports best_model.pt
+|   `-- inference/
+|       `-- detect_camera.py         # Live camera detection
+|-- main.py                          # Main application entry point
+|-- requirements.txt                 # Python dependencies
+|-- How_To_Run.txt                   # Short run commands
+`-- system_workflow.md               # Workflow notes
 ```
-├── Dataset/                   # Directory containing raw images and labels
-├── models/                    # Directory where trained models (best_model.pt) are saved
-├── runs/                      # Training metrics output (Loss, mAP, Precision, Recall)
-├── src/
-│   ├── train_model.py         # Script to train the model
-│   └── inference/
-│       └── detect_camera.py   # Script for real-time live detection
-├── main.py                    # Master execution script
-├── requirements.txt           # Project dependencies
-├── How_To_Run.txt             # Quick execution commands guide
-└── system_workflow.md         # Detailed Dataflow & System Architecture diagram
+
+## Setup
+
+Create and activate a virtual environment:
+
+```powershell
+python -m venv myenv
+myenv\Scripts\Activate
 ```
 
-## Setup & Installation
-1. **Create a virtual environment:**
-   ```bash
-   python -m venv myenv
-   ```
-2. **Activate the virtual environment:**
-   - Windows:
-     ```bash
-     myenv\Scripts\Activate
-     ```
-   - Linux/Mac:
-     ```bash
-     source myenv/bin/activate
-     ```
-3. **Install the dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Install dependencies:
 
-## Requirements
-The core dependencies used by this project:
-- ultralytics >= 8.3.0
-- torch & torchvision
-- opencv-python >= 4.8.0
-- numpy >= 1.23
-- matplotlib >= 3.7
-- pyyaml >= 6.0
-- tqdm >= 4.66
+```powershell
+pip install -r requirements.txt
+```
 
-## How to Run
+## How To Run
 
-To run the whole system (triggers training if no model is present, then jumps to inference):
-```bash
+Run the complete application:
+
+```powershell
 python main.py
 ```
 
-To strictly run the inference script directly:
-```bash
+`main.py` starts the local location server, checks for `models/best_model.pt`, trains if the model is missing, and then starts live camera detection.
+
+When the project starts, the terminal prints:
+
+```text
+Location permission page: http://127.0.0.1:8765/location-page
+```
+
+Open this URL on the laptop browser:
+
+```text
+http://127.0.0.1:8765/location-page
+```
+
+Click `Allow Location` on the page. When the browser asks for permission, click `Allow`. The project will then use that laptop browser location when plastic is detected.
+
+Important: open the location page on the laptop browser, not on the phone.
+
+Run only live detection:
+
+```powershell
 python -m src.inference.detect_camera
 ```
 
-## System Workflow Description
-- Start the application by invoking `main.py`.
-- The system checks for the presence of `models/best_model.pt`.
-- If missing, the model will train using the labeled data in `Dataset/`, dividing the data into an 80/20 train/validation split. Upon completion, the model is saved to `models/best_model.pt`.
-- If found (or newly trained), Real-Time detection using OpenCV initializes on your default camera feed. Detected plastic items are marked with bounding boxes and "Pseudo-GPS" details in the console.
+Run only training:
 
----
-*Created as part of the Plastic Waste Detection System project.*
+```powershell
+python -m src.train_model
+```
+
+Evaluate the current model:
+
+```powershell
+python -m src.evaluate
+```
+
+## Location Options
+
+The detector checks location sources in this order:
+
+1. Manual environment variables:
+
+   ```powershell
+   $env:GPS_LATITUDE="16.7147381"
+   $env:GPS_LONGITUDE="74.4357617"
+   python main.py
+   ```
+
+2. Browser location from the local page:
+
+   ```text
+   http://127.0.0.1:8765/location-page
+   ```
+
+   Run `python main.py`, open this URL on the laptop browser, click `Allow Location`, and approve the browser permission prompt.
+
+3. Windows Location Services, when available.
+
+Approximate IP location is disabled by default because it can be very inaccurate. To allow it:
+
+```powershell
+$env:ALLOW_APPROX_IP_LOCATION="1"
+python main.py
+```
+
+## Runtime Settings
+
+You can tune detection without editing code:
+
+```powershell
+$env:PLASTIC_CONF="0.35"
+$env:PLASTIC_IMGSZ="960"
+$env:PLASTIC_CONFIRM_FRAMES="2"
+$env:LOCATION_REFRESH_SECONDS="1"
+python main.py
+```
+
+## Notes
+
+- Press `q` in the camera window to stop detection.
+- Keep `models/best_model.pt` for normal inference.
+- `runs/` and YOLO `.cache` files are generated outputs and can be recreated.

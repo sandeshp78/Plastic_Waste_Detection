@@ -1,15 +1,123 @@
-How To run this project
+How to Run This Project
+=======================
 
-1. Create a virtual environment
-Command: python -m venv myenv
+Follow these steps from the project folder:
 
-2. Activate the virtual environment
-Command: myenv\Scripts\Activate
+   C:\Sirius\Plastic_Waste_Detection_ main
 
-3. Install the dependencies
-Command: pip install -r requirements.txt
 
-4. Run the project
-Command: python main.py
-            or
-        python -m src.inference.detect_camera
+1. Create a Virtual Environment
+-------------------------------
+
+Command:
+
+   python -m venv myenv
+
+
+2. Activate the Virtual Environment
+-----------------------------------
+
+Command:
+
+   myenv\Scripts\Activate
+
+
+3. Install Dependencies
+-----------------------
+
+Command:
+
+   pip install -r requirements.txt
+
+
+4. Run the Complete Project
+---------------------------
+
+Command:
+
+   python main.py
+
+This starts the full system:
+
+   - Starts the local location permission page.
+   - Checks for models\best_model.pt.
+   - Trains the model if the model file is missing.
+   - Starts live camera plastic detection.
+
+
+5. Allow Laptop Browser Location
+--------------------------------
+
+After running:
+
+   python main.py
+
+The terminal will print:
+
+   Location permission page: http://127.0.0.1:8765/location-page
+
+Open this URL on the laptop browser:
+
+   http://127.0.0.1:8765/location-page
+
+Important:
+
+   Open this page on the laptop browser, not on the phone.
+
+On the page, click:
+
+   Allow Location
+
+The browser will ask for location permission. Click:
+
+   Allow
+
+Now the project will use that browser location when plastic is detected.
+
+
+6. Stop the Project
+-------------------
+
+In the camera window, press:
+
+   q
+
+This closes the camera and stops detection.
+
+
+Optional Commands
+=================
+
+Run live camera detection only:
+
+   python -m src.inference.detect_camera
+
+Train or retrain the model only:
+
+   python -m src.train_model
+
+Evaluate the current model:
+
+   python -m src.evaluate
+
+
+Manual GPS Location Option
+==========================
+
+If browser location is not available, you can provide latitude and longitude manually:
+
+   $env:GPS_LATITUDE="16.7147381"
+   $env:GPS_LONGITUDE="74.4357617"
+   python main.py
+
+
+Detection Settings
+==================
+
+You can adjust detection settings before running the project:
+
+   $env:PLASTIC_CONF="0.35"
+   $env:PLASTIC_IMGSZ="960"
+   $env:PLASTIC_CONFIRM_FRAMES="2"
+   $env:LOCATION_REFRESH_SECONDS="1"
+   python main.py

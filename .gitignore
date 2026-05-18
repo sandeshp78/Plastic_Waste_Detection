@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+myenv/
+.venv/
+venv/
+
+# Ultralytics/generated outputs
+runs/
+Dataset/**/labels/*.cache
+
+# Local environment
+.env
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
